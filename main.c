@@ -96,9 +96,9 @@ static int dbc2cWrapper(dbc_t *dbc, const char *dbc_file, const char *file_only,
 	assert(dbc);
 	assert(dbc_file);
 	assert(file_only);
-	char *cname = replace_file_type(dbc_file,  "c");
-	char *hname = replace_file_type(dbc_file,  "h");
-	char *fname = replace_file_type(file_only, "h");
+	char *cname = replace_file_type(dbc_file,  "cpp");
+	char *hname = replace_file_type(dbc_file,  "hpp");
+	char *fname = replace_file_type(file_only, "hpp");
 	FILE *c = fopen_or_die(cname, "wb");
 	FILE *h = fopen_or_die(hname, "wb");
 	const int r = dbc2c(dbc, c, h, fname, copts);
