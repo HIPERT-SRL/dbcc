@@ -1115,16 +1115,13 @@ int dbc2c(dbc_t *dbc, FILE *c, FILE *h, const char *name, dbc2c_options_t *copts
 		"requires your support to continue.\n\n"
 		"For those with paid support or to inquire about paid support\n"
 		"please Email <mailto:hello.operator.co.uk@gmail.com>.\n\n*/\n\n"
-		"#ifndef %s\n"
-		"#define %s\n\n"
+        "#pragma once\n\n"
 		"/* If the contents of this file have caused breaking changes for you, you could try using\n"
 		"   an older version of the generator. You can specify this on the command line with\n"
 		"   the -n option. */\n"
 		"#define DBCC_GENERATOR_VERSION (%d)\n\n"
 		"#include <cstdint>\n"
 		"%s\n\n",
-		file_guard,
-		file_guard,
 		copts->version,
 		copts->generate_print   ? "#include <stdio.h>"  : "") < 0)
 			return -1;
@@ -1192,9 +1189,6 @@ int dbc2c(dbc_t *dbc, FILE *c, FILE *h, const char *name, dbc2c_options_t *copts
 		if (msg2h(dbc->messages[i], h, copts, god) < 0)
 			return -1;
 
-	fputs(
-		"#endif\n",
-		h);
 	/* header file (end) */
 
 	/* C FILE */
