@@ -1121,11 +1121,8 @@ int dbc2c(dbc_t *dbc, FILE *c, FILE *h, const char *name, dbc2c_options_t *copts
 		"   an older version of the generator. You can specify this on the command line with\n"
 		"   the -n option. */\n"
 		"#define DBCC_GENERATOR_VERSION (%d)\n\n"
-		"#include <stdint.h>\n"
-		"%s\n\n"
-		"#ifdef __cplusplus\n"
-		"extern \"C\" { \n"
-		"#endif\n\n",
+		"#include <cstdint>\n"
+		"%s\n\n",
 		file_guard,
 		file_guard,
 		copts->version,
@@ -1196,9 +1193,6 @@ int dbc2c(dbc_t *dbc, FILE *c, FILE *h, const char *name, dbc2c_options_t *copts
 			return -1;
 
 	fputs(
-		"#ifdef __cplusplus\n"
-		"} \n"
-		"#endif\n\n"
 		"#endif\n",
 		h);
 	/* header file (end) */
@@ -1215,11 +1209,11 @@ int dbc2c(dbc_t *dbc, FILE *c, FILE *h, const char *name, dbc2c_options_t *copts
 	if (fputs(cput, c) < 0) return -1;
 
 	if (fprintf(c, "#include \"%s\"\n", name) < 0) return -1;
-	if (fprintf(c, "#include <inttypes.h>\n") < 0) return -1;
+	if (fprintf(c, "#include <cinttypes>\n") < 0) return -1;
 	if (dbc->use_float)
-		fprintf(c, "#include <math.h> /* uses macros NAN, INFINITY, signbit, no need for -lm */\n");
+		fprintf(c, "#include <cmath> /* uses macros NAN, INFINITY, signbit, no need for -lm */\n");
 	if (copts->generate_asserts)
-		fprintf(c, "#include <assert.h>\n");
+		fprintf(c, "#include <cassert>\n");
 	fputc('\n', c);
 	fprintf(c, "#define UNUSED(X) ((void)(X))\n\n");
 	fputs(cfunctions, c);
