@@ -238,7 +238,7 @@ static int signal2serializer(signal_t *sig, const char *msg_name, FILE *o, const
 			return -1;
 	}
 	if (start)
-		if (fprintf(o, "%sx <<= %u; \n", indent, start) < 0)
+		if (fprintf(o, "%sx <<= %u;\n", indent, start) < 0)
 			return -1;
 	if (fprintf(o, "%s%c |= x;\n", indent, motorola ? 'm' : 'i') < 0)
 		return -1;
