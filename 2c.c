@@ -1153,7 +1153,7 @@ int dbc2c(dbc_t *dbc, FILE *c, FILE *h, const char *name, dbc2c_options_t *copts
 
 	fprintf(h, "#ifndef DBCC_TIME_STAMP\n");
 	fprintf(h, "#define DBCC_TIME_STAMP\n");
-	fprintf(h, "typedef uint32_t dbcc_time_stamp_t; /* Time stamp for message; you decide on units */\n");
+	fprintf(h, "typedef uint64_t dbcc_time_stamp_t; /* Time stamp for message; you decide on units */\n");
 	fprintf(h, "#endif\n\n");
 
 	fprintf(h, "#ifndef DBCC_STATUS_ENUM\n");
