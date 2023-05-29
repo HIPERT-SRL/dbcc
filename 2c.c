@@ -1117,7 +1117,12 @@ int dbc2c(dbc_t *dbc, FILE *c, FILE *h, const char *name, dbc2c_options_t *copts
 		qsort(msg->sigs, msg->signal_count, sizeof(msg->sigs[0]), signal_compare_function);
 	}
 
+    time_t t = time(NULL);
+    struct tm* current_time = localtime(&t);
+    unsigned current_year = current_time->tm_year + 1900;
+
 	/* header file (begin) */
+	fprintf(h, "/*\n *   Copyright (c) %u HiPeRT SRL\n *   All rights reserved.\n */\n",current_year);
 	fprintf(h, "/* CAN message encoder/decoder: automatically generated - do not edit.\n\n");
 	if (copts->use_time_stamps)
 		fprintf(h, "  * @note  Generated on %s", asctime(timeinfo));
@@ -1213,6 +1218,7 @@ int dbc2c(dbc_t *dbc, FILE *c, FILE *h, const char *name, dbc2c_options_t *copts
 		"better MISRA-C support.\n"
 		"\n\n*/\n\n";
 
+	fprintf(c, "/*\n *   Copyright (c) %u HiPeRT SRL\n *   All rights reserved.\n */\n",current_year);
 	if (fputs(cput, c) < 0) return -1;
 
 	if (fprintf(c, "#include \"%s\"\n", name) < 0) return -1;
