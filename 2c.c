@@ -212,7 +212,7 @@ static int signal2deserializer(signal_t *sig, const char *msg_name, FILE *o, con
 	}
 
 	const char * type = determine_type(sig->bit_length, sig->is_signed, sig->is_floating);
-	return fprintf(o, "%so->%s.%s = (%s)x;\n", indent, msg_name, sig->name, type) < 0 ? -1 : 0;
+	return fprintf(o, "%so->%s.%s = static_cast<%s>(x);\n", indent, msg_name, sig->name, type) < 0 ? -1 : 0;
 }
 
 static int signal2serializer(signal_t *sig, const char *msg_name, FILE *o, const char *indent)
@@ -234,7 +234,7 @@ static int signal2serializer(signal_t *sig, const char *msg_name, FILE *o, const
 		if (fprintf(o, "%sx = pack754_%u(o->%s.%s) & 0x%"PRIx64";\n", indent, sig->bit_length, msg_name, sig->name, mask) < 0)
 			return -1;
 	} else {
-		if (fprintf(o, "%sx = ((%s)(o->%s.%s)) & 0x%"PRIx64";\n", indent, determine_unsigned_type(sig->bit_length), msg_name, sig->name, mask) < 0)
+		if (fprintf(o, "%sx = static_cast<%s>(o->%s.%s) & 0x%"PRIx64";\n", indent, determine_unsigned_type(sig->bit_length), msg_name, sig->name, mask) < 0)
 			return -1;
 	}
 	if (start)
@@ -356,7 +356,7 @@ static int signal2scaling_encode(const char *msgname, unsigned id, signal_t *sig
 		}
 
 		if (gmin || gmax)
-			fprintf(o, "\to->%s.%s = (%s)0;\n", msgname, sig->name, cast_type);
+			fprintf(o, "\to->%s.%s = static_cast<%s>(0);\n", msgname, sig->name, cast_type);
 		if (gmin)
 			fprintf(o, "\tif (in < %g)\n\t\treturn -1;\n", sig->minimum);
 		if (gmax)
@@ -373,7 +373,7 @@ static int signal2scaling_encode(const char *msgname, unsigned id, signal_t *sig
 	if (!copts->use_doubles_for_encoding && strcmp(type, cast_type) == 0)
 		fprintf(o, "\to->%s.%s = in;\n", msgname, sig->name);
 	else
-		fprintf(o, "\to->%s.%s = (%s)in;\n", msgname, sig->name, cast_type);
+		fprintf(o, "\to->%s.%s = static_cast<%s>(in);\n", msgname, sig->name, cast_type);
 
 	return fputs("\treturn 0;\n}\n\n", o);
 }
@@ -400,7 +400,7 @@ static int signal2scaling_decode(const char *msgname, unsigned id, signal_t *sig
 		fputs("\tassert(o);\n", o);
 		fputs("\tassert(out);\n", o);
 	}
-	fprintf(o, "\t%s rval = (%s)(o->%s.%s);\n", type, type, msgname, sig->name);
+	fprintf(o, "\t%s rval = static_cast<%s>(o->%s.%s);\n", type, type, msgname, sig->name);
 	if (sig->scaling == 0.0)
 		error("invalid scaling factor (fix your DBC file)");
 	if (sig->scaling != 1.0)
@@ -437,7 +437,7 @@ static int signal2scaling_decode(const char *msgname, unsigned id, signal_t *sig
 			fputs("\t\t*out = rval;\n", o);
 			fputs("\t\treturn 0;\n", o);
 			fputs("\t} else {\n", o);
-			fprintf(o, "\t\t*out = (%s)0;\n", type);
+			fprintf(o, "\t\t*out =static_cast<%s>(0);\n", type);
 			fputs("\t\treturn -1;\n", o);
 			fputs("\t}\n", o);
 
