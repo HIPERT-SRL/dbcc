@@ -849,7 +849,7 @@ static int switch_function(FILE *c, dbc_t *dbc, char *function, bool unpack,
 	assert(function);
 	assert(god);
 	assert(copts);
-	fprintf(c, "int %s_message(can_obj_%s_t *o, const unsigned long id, %s %sdata%s)",
+	fprintf(c, "int %s_message(can_obj_%s_t *o, const unsigned id, %s %sdata%s)",
 			function, god, datatype, unpack ? "" : "*",
 			dlc ? ", uint8_t dlc, dbcc_time_stamp_t time_stamp" : "");
 	if (prototype)
