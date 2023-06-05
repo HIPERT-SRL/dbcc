@@ -636,11 +636,11 @@ static int msg_pack(can_msg_t *msg, FILE *c, const char *name, bool motorola_use
 		fprintf(c, "\tassert(data);\n");
 	}
 	if (message_has_signals)
-		fprintf(c, "\tregister uint64_t x;\n");
+		fprintf(c, "\tuint64_t x;\n");
 	if (motorola_used)
-		fprintf(c, "\tregister uint64_t m = 0;\n");
+		fprintf(c, "\tuint64_t m = 0;\n");
 	if (intel_used)
-		fprintf(c, "\tregister uint64_t i = 0;\n");
+		fprintf(c, "\tuint64_t i = 0;\n");
 	if (!message_has_signals)
 		fprintf(c, "\tUNUSED(o);\n\tUNUSED(data);\n");
 	signal_t *multiplexor = process_signals_and_find_multiplexer(msg, c, name, true);
@@ -675,11 +675,11 @@ static int msg_unpack(can_msg_t *msg, FILE *c, const char *name, bool motorola_u
 		fprintf(c, "\tassert(dlc <= 8);\n");
 	}
 	if (message_has_signals)
-		fprintf(c, "\tregister uint64_t x;\n");
+		fprintf(c, "\tuint64_t x;\n");
 	if (motorola_used)
-		fprintf(c, "\tregister uint64_t m = %s(data);\n", swap_motorola ? "reverse_byte_order" : "");
+		fprintf(c, "\tuint64_t m = %s(data);\n", swap_motorola ? "reverse_byte_order" : "");
 	if (intel_used)
-		fprintf(c, "\tregister uint64_t i = %s(data);\n", swap_motorola ? "" : "reverse_byte_order");
+		fprintf(c, "\tuint64_t i = %s(data);\n", swap_motorola ? "" : "reverse_byte_order");
 	if (!message_has_signals)
 		fprintf(c, "\tUNUSED(o);\n\tUNUSED(data);\n");
 	if (msg->dlc)
