@@ -1216,6 +1216,7 @@ int dbc2c(dbc_t *dbc, FILE *c, FILE *h, const char *name, dbc2c_options_t *copts
 		fprintf(c, "#include <cassert>\n");
 	fputc('\n', c);
 	fprintf(c, "#define UNUSED(X) ((void)(X))\n\n");
+	fprintf(c, "#pragma GCC diagnostic push\n#if not defined(__clang__)\n#pragma GCC diagnostic ignored \"-Wuseless-cast\"\n#endif\n\n");
 	fputs(cfunctions, c);
 	if (copts->generate_print)
 		fputs(cfunctions_print_only, c);
@@ -1241,6 +1242,8 @@ int dbc2c(dbc_t *dbc, FILE *c, FILE *h, const char *name, dbc2c_options_t *copts
 
 	if (copts->generate_print)
 		switch_function_print(c, dbc, false, god, copts);
+
+    fprintf(c,"#pragma GCC diagnostic pop\n");
 
 fail:
 	free(file_guard);
