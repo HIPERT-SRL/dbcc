@@ -404,9 +404,9 @@ static int signal2scaling_decode(const char *msgname, unsigned id, signal_t *sig
 	if (sig->scaling == 0.0)
 		error("invalid scaling factor (fix your DBC file)");
 	if (sig->scaling != 1.0)
-		fprintf(o, "\trval *= %g;\n", sig->scaling);
+		fprintf(o, "\trval *= %.16lg;\n", sig->scaling);
 	if (sig->offset != 0.0)
-		fprintf(o, "\trval += %g;\n", sig->offset);
+		fprintf(o, "\trval += %.16lg;\n", sig->offset);
 	if (signal_are_min_max_valid(sig)) {
 		bool gmax = true;
 		bool gmin = true;
