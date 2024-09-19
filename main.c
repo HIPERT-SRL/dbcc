@@ -298,7 +298,7 @@ int main(int argc, char **argv)
 	debug("using version %d of output", copts.version);
 
 	if (!copts.generate_unpack && !copts.generate_pack && !copts.generate_print) {
-		copts.generate_print  = true;
+		copts.use_time_stamps  = true;
 		copts.generate_pack   = true;
 		copts.generate_unpack = true;
 	}
