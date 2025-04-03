@@ -1041,7 +1041,7 @@ static int msg2h_types(dbc_t *dbc, FILE *h, dbc2c_options_t *copts)
 					r = snprintf(enum_value_name, MAX_NAME_LENGTH-1, "%s_%s_%s", name, list->name, ename);
 					for (int i = 0; enum_value_name[i]; i++) 
 						enum_value_name[i] = toupper(enum_value_name[i]);
-					fprintf(h, "\t%s = %d,\n", enum_value_name, item->value);
+					fprintf(h, "\t%s = %d, /* 0x%x */\n", enum_value_name, item->value, item->value);
 					free(ename);
 				} else {
 					r = fprintf(h, "\t%s_%s_e = %d,\n", list->name, item->name, item->value);
