@@ -501,7 +501,8 @@ static signal_t *find_multiplexor(can_msg_t *msg) {
 	return multiplexor;
 }
 
-static void recursively_process_multiplexed(signal_t *sig, FILE *c, const char *name, bool serialize, size_t indent_level) {
+static void recursively_process_multiplexed(signal_t *sig, FILE *c, const char *name, bool serialize, size_t indent_level, size_t return_value) {
+
 	char* indent = malloc((indent_level + 1) * sizeof(char));
 	memset(indent, '\t', indent_level);
 	indent[indent_level] = '\0';
@@ -510,29 +511,36 @@ static void recursively_process_multiplexed(signal_t *sig, FILE *c, const char *
 		error("%s failed", serialize ? "serialization" : "deserialization");
 	}
 
+	unsigned* previous_value = NULL;
 	for (size_t i = 0; i < sig->mul_num; i++) {
 		fprintf(c, "%s", indent);
 
-		if (i != 0) {
-			fprintf(c, "} else ");
-		}
 		mul_val_list_t *mul_val = sig->mux_vals[i];
 
-		fprintf(c, "if (");
-		for (size_t j = 0; j<mul_val->range_num; j++) {
-			if (j > 0) {
-				fprintf(c, " || \n");
-				fprintf(c, "%s\t", indent);
+		if (previous_value == NULL || mul_val->ranges[0]->min_value != *previous_value) {
+			if (i != 0) {
+				fprintf(c, "} else ");
 			}
-			if (mul_val->ranges[j]->min_value == mul_val->ranges[j]->max_value) {
-						fprintf(c, "o->%s.%s == %u", name, sig->name, mul_val->ranges[j]->min_value);
-			} else {
-						fprintf(c, "(%u <= o->%s.%s  && o->%s.%s <= %u)", mul_val->ranges[j]->min_value, name, sig->name, name, sig->name, mul_val->ranges[j]->max_value);
+			fprintf(c, "if (");
+			for (size_t j = 0; j<mul_val->range_num; j++) {
+				if (j > 0) {
+					fprintf(c, " || \n");
+					fprintf(c, "%s\t", indent);
+				}
+				if (mul_val->ranges[j]->min_value == mul_val->ranges[j]->max_value) {
+					fprintf(c, "o->%s.%s == %u", name, sig->name, mul_val->ranges[j]->min_value);
+				} else {
+					if (i != 0) {
+						fprintf(c, "} else ");
+					}
+					fprintf(c, "(%u <= o->%s.%s  && o->%s.%s <= %u)", mul_val->ranges[j]->min_value, name, sig->name, name, sig->name, mul_val->ranges[j]->max_value);
+				}
 			}
+			fprintf(c, ") {\n");
 		}
-		fprintf(c, ") {\n");
-
-		recursively_process_multiplexed(sig->muxed[i], c, name, serialize, indent_level + 1);
+		
+		recursively_process_multiplexed(sig->muxed[i], c, name, serialize, indent_level + 1, ++return_value);
+		previous_value = &mul_val->ranges[0]->min_value;
 	}
 
 	if (sig->mul_num != 0) {
