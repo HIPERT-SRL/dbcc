@@ -330,11 +330,11 @@ static int signal2scaling_encode(const char *msgname, unsigned id, signal_t *sig
 	if (sig->scaling != 1.0 || sig->offset != 0.0)
 		type = "dbcc_double_t";
 	if (copts->use_id_in_name)
-		fprintf(o, "int encode_can_0x%03x_%s(can_obj_%s_t *o, %s in)", id, sig->name, god, copts->use_doubles_for_encoding ? "dbcc_double_t" : type);
+		fprintf(o, "[[nodiscard]] int encode_can_0x%03x_%s(can_obj_%s_t *o, %s in)", id, sig->name, god, copts->use_doubles_for_encoding ? "dbcc_double_t" : type);
 	else if (copts->version >= 2)
-		fprintf(o, "int encode_%s_%s(can_obj_%s_t *o, %s in)", msgname, sig->name, god, copts->use_doubles_for_encoding ? "dbcc_double_t" : type);
+		fprintf(o, "[[nodiscard]] int encode_%s_%s(can_obj_%s_t *o, %s in)", msgname, sig->name, god, copts->use_doubles_for_encoding ? "dbcc_double_t" : type);
 	else
-		fprintf(o, "int encode_can_%s(can_obj_%s_t *o, %s in)", sig->name, god, copts->use_doubles_for_encoding ? "dbcc_double_t" : type);
+		fprintf(o, "[[nodiscard]] int encode_can_%s(can_obj_%s_t *o, %s in)", sig->name, god, copts->use_doubles_for_encoding ? "dbcc_double_t" : type);
 
 	if (header)
 		return fputs(";\n", o);
@@ -391,11 +391,11 @@ static int signal2scaling_decode(const char *msgname, unsigned id, signal_t *sig
 	if (sig->scaling != 1.0 || sig->offset != 0.0)
 		type = "dbcc_double_t";
 	if (copts->use_id_in_name)
-		fprintf(o, "int decode_can_0x%03x_%s(const can_obj_%s_t *o, %s *out)", id, sig->name, god, copts->use_doubles_for_encoding ? "dbcc_double_t" : type);
+		fprintf(o, "[[nodiscard]] int decode_can_0x%03x_%s(const can_obj_%s_t *o, %s *out)", id, sig->name, god, copts->use_doubles_for_encoding ? "dbcc_double_t" : type);
 	else if (copts->version >= 2)
-		fprintf(o, "int decode_%s_%s(const can_obj_%s_t *o, %s *out)", msgname, sig->name, god, copts->use_doubles_for_encoding ? "dbcc_double_t" : type);
+		fprintf(o, "[[nodiscard]] int decode_%s_%s(const can_obj_%s_t *o, %s *out)", msgname, sig->name, god, copts->use_doubles_for_encoding ? "dbcc_double_t" : type);
 	else
-		fprintf(o, "int decode_can_%s(const can_obj_%s_t *o, %s *out)", sig->name, god, copts->use_doubles_for_encoding ? "dbcc_double_t" : type);
+		fprintf(o, "[[nodiscard]] int decode_can_%s(const can_obj_%s_t *o, %s *out)", sig->name, god, copts->use_doubles_for_encoding ? "dbcc_double_t" : type);
 	if (header)
 		return fputs(";\n", o);
 	fputs(" {\n", o);
@@ -469,7 +469,7 @@ static int print_function_name(FILE *out, const char *prefix, const char *name, 
 	assert(name);
 	assert(god);
 	assert(postfix);
-	return fprintf(out, "static int %s_%s(can_obj_%s_t *o, %s %sdata%s)%s",
+	return fprintf(out, "[[nodiscard]] static int %s_%s(can_obj_%s_t *o, %s %sdata%s)%s",
 			prefix, name, god, datatype,
 			in ? "" : "*",
 			dlc ? ", uint8_t dlc, dbcc_time_stamp_t time_stamp" : "",
@@ -717,7 +717,7 @@ static int msg_print(can_msg_t *msg, FILE *c, const char *name, const char *god,
 	assert(name);
 	assert(god);
 	assert(copts);
-	fprintf(c, "int print_%s(const can_obj_%s_t *o, FILE *output) {\n", name, god);
+	fprintf(c, "[[nodiscard]] int print_%s(const can_obj_%s_t *o, FILE *output) {\n", name, god);
 	if (copts->generate_asserts) {
 		fputs("\tassert(o);\n", c);
 		fputs("\tassert(output);\n", c);
@@ -819,14 +819,14 @@ static int msg2h(can_msg_t *msg, FILE *h, dbc2c_options_t *copts, const char *go
 }
 
 static const char *cfunctions =
-"static inline uint64_t reverse_byte_order(uint64_t x) {\n"
+"[[nodiscard]] static inline uint64_t reverse_byte_order(uint64_t x) {\n"
 "\tx = (x & 0x00000000FFFFFFFF) << 32 | (x & 0xFFFFFFFF00000000) >> 32;\n"
 "\tx = (x & 0x0000FFFF0000FFFF) << 16 | (x & 0xFFFF0000FFFF0000) >> 16;\n"
 "\tx = (x & 0x00FF00FF00FF00FF) << 8  | (x & 0xFF00FF00FF00FF00) >> 8;\n"
 "\treturn x;\n"
 "}\n\n";
 static const char *cfunctions_print_only =
-"static inline int print_helper(int r, int print_return_value) {\n"
+"[[nodiscard]] static inline int print_helper(int r, int print_return_value) {\n"
 "\treturn ((r >= 0) && (print_return_value >= 0)) ? r + print_return_value : -1;\n"
 "}\n\n";
 
@@ -862,7 +862,7 @@ static int switch_function(FILE *c, dbc_t *dbc, char *function, bool unpack,
 	assert(function);
 	assert(god);
 	assert(copts);
-	fprintf(c, "int %s_message(can_obj_%s_t *o, const unsigned id, %s %sdata%s)",
+	fprintf(c, "[[nodiscard]] int %s_message(can_obj_%s_t *o, const unsigned id, %s %sdata%s)",
 			function, god, datatype, unpack ? "" : "*",
 			dlc ? ", uint8_t dlc, dbcc_time_stamp_t time_stamp" : "");
 	if (prototype)
@@ -896,7 +896,7 @@ static int switch_function_print(FILE *c, dbc_t *dbc, bool prototype, const char
 	assert(dbc);
 	assert(god);
 	assert(copts);
-	fprintf(c, "int print_message(const can_obj_%s_t *o, const unsigned long id, FILE *output)", god);
+	fprintf(c, "[[nodiscard]] int print_message(const can_obj_%s_t *o, const unsigned long id, FILE *output)", god);
 	if (prototype)
 		return fprintf(c, ";\n");
 	fprintf(c, " {\n");
@@ -922,7 +922,7 @@ static int switch_message_dlc(FILE *c, dbc_t *dbc, bool prototype, dbc2c_options
 	assert(c);
 	assert(dbc);
 	assert(copts);
-	fprintf(c, "int message_dlc(const unsigned long id)");
+	fprintf(c, "[[nodiscard]] int message_dlc(const unsigned long id)");
 	if (prototype)
 		return fprintf(c, ";\n");
 	fprintf(c, " {\n");
