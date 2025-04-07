@@ -535,8 +535,11 @@ static void recursively_process_multiplexed(signal_t *sig, FILE *c, const char *
 		recursively_process_multiplexed(sig->muxed[i], c, name, serialize, indent_level + 1);
 	}
 
-	if(sig->mul_num != 0) {
-		fprintf(c, "%s} else {\n%s\treturn -1;\n%s}\n", indent, indent, indent);
+	if (sig->mul_num != 0) {
+		fprintf(c, "%s}", indent);
+		if (sig->minimum == 0 && sig->maximum == 0) {
+			fprintf(c, " else {\n%s\treturn -%ld;\n%s}\n", indent, return_value, indent);
+		}
 	}
 
 	free(indent);
@@ -554,7 +557,7 @@ static signal_t *process_signals_and_find_multiplexer(can_msg_t *msg, FILE *c, c
 		if (sig->is_multiplexed)
 			continue;
 		if (sig->muxed) {
-			recursively_process_multiplexed(sig, c, name, serialize, 1);
+			recursively_process_multiplexed(sig, c, name, serialize, 1, 1);
 			continue;
 		} else if (sig->is_multiplexor) {
 			if (multiplexor)
