@@ -706,7 +706,15 @@ static int msg_unpack(can_msg_t *msg, FILE *c, const char *name, bool motorola_u
 		fprintf(c, "\tuint64_t i = %s(data);\n", swap_motorola ? "" : "reverse_byte_order");
 	if (!message_has_signals)
 		fprintf(c, "\tUNUSED(o);\n\tUNUSED(data);\n");
-	if (msg->dlc)
+
+	bool extended_multiplexing = false;
+	for (size_t i = 0; i < msg->signal_count; i++) {
+		if(msg->sigs[i]->muxed) {
+			extended_multiplexing = true;
+			break;
+		}
+	}
+	if (msg->dlc && !extended_multiplexing)
 		fprintf(c, "\tif (dlc < %u)\n\t\treturn -1;\n", msg->dlc);
 	else
 		fprintf(c, "\tUNUSED(dlc);\n");
