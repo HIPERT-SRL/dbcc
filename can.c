@@ -537,28 +537,37 @@ dbc_t *ast2dbc(mpc_ast_t *ast)
 	int index     = mpc_ast_get_index_lb(ast, "messages|>", 0);
 	mpc_ast_t *msgs_ast = mpc_ast_get_child_lb(ast, "messages|>", 0);
 	if (index < 0) {
-		warning("no messages found");
-		return NULL;
-	}
-
-	int n = msgs_ast->children_num;
-	if (n <= 0) {
-		warning("messages has no children");
-		return NULL;
-	}
-
-	can_msg_t **r = allocate(sizeof(*r) * (n+1));
-	int j = 0;
-	for (int i = 0; i >= 0;) {
-		i = mpc_ast_get_index_lb(msgs_ast, "message|>", i);
-		if (i >= 0) {
-			mpc_ast_t *msg_ast = mpc_ast_get_child_lb(msgs_ast, "message|>", i);
-			r[j++] = ast2msg(ast, msg_ast, d);
-			i++;
+		index = mpc_ast_get_index_lb(ast, "messages|message|>", 0);
+		msgs_ast = mpc_ast_get_child_lb(ast, "messages|message|>", 0);
+		if (index < 0) {
+			warning("no messages found");
+			return NULL;
 		}
+
+		can_msg_t **r = allocate(sizeof(*r));
+		r[0] = ast2msg(ast, msgs_ast, d);
+		d->message_count = 1;
+		d->messages = r;
+	} else {
+		int n = msgs_ast->children_num;
+		if (n <= 0) {
+			warning("messages has no children");
+			return NULL;
+		}
+
+		can_msg_t **r = allocate(sizeof(*r) * (n+1));
+		int j = 0;
+		for (int i = 0; i >= 0;) {
+			i = mpc_ast_get_index_lb(msgs_ast, "message|>", i);
+			if (i >= 0) {
+				mpc_ast_t *msg_ast = mpc_ast_get_child_lb(msgs_ast, "message|>", i);
+				r[j++] = ast2msg(ast, msg_ast, d);
+				i++;
+			}
+		}
+		d->message_count = j;
+		d->messages = r;
 	}
-	d->message_count = j;
-	d->messages = r;
 
 	int i = mpc_ast_get_index_lb(ast, "sigval|>", 0);
 	if (i >= 0)
